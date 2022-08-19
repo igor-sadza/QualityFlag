@@ -1,0 +1,4 @@
+[submodule "nextcloud"]
+	path = /apps/nextcloud
+	url = https://github.com/igor-sadza/QualityFlag.git
+	branch = nextcloud
