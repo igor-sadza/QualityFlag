@@ -6,7 +6,7 @@ gRelativePath=$(dirname $(realpath -s "$0"))
 
 
 function dockerComposeAttach() {
-  echo -n "${mBranchName}/docker-compose.yml" >> ${OLDPWD}/.env
+  echo -n "apps/${mBranchName}/docker-compose.yml" >> ${OLDPWD}/.env
   sed -r -i 's/(yml)([a-z])/\1:\2/g' ${OLDPWD}/.env
 };
 

@@ -46,7 +46,7 @@ docker-compose-prune:
 	-@(docker stop $(shell docker ps -aq) &>/dev/null || true)
 	-@(docker system prune -a -f  &>/dev/null)
 	-@(docker rm -f $(shell docker container ls -a -q) &>/dev/null)
-	-@(docker image prune -f  &>/dev/null)
+#	-@(docker image prune -f  &>/dev/null)
 	-@(docker volume rm $(shell docker volume ls -q) &>/dev/null || true)
 
 .PHONY: docker-compose-ps
@@ -58,7 +58,7 @@ docker-compose-ps:
 .PHONY: docker-compose-upd 
 docker-compose-upd: 
 	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-upa]")
-	-@(docker-compose up -d --no-deps --build `echo $(RUN_ARGS) | sed 's/^.* //g'`)
+	-@(docker-compose up -d --no-deps --build `echo $(RUN_ARGS) | sed 's/^.* //'`)
 	-@(. ./maketools/log.sh; log "SEPARATOR"; )
 
 .PHONY: docker-compose-sh 
