@@ -2,3 +2,7 @@
 	path = apps/nextcloud
   url = https://github.com/igor-sadza/QualityFlag.git
   branch = nextcloud
+[submodule "keycloak"]
+	path = apps/keycloak
+  url = https://github.com/igor-sadza/QualityFlag.git
+  branch = keycloak
