@@ -1,0 +1,82 @@
+version: '3.5'
+
+services:
+
+  nextcloud-frontend:
+    hostname: 'nextcloud-frontend'
+    container_name: 'nextcloud-frontend'
+    image: 'nginx'
+    volumes:
+      - 'nextcloud-www:/var/www/html'
+      - type: "bind"
+        source: "${PWD}/app/frontend/rootfs/etc/nginx/nginx.conf"
+        target: "/etc/nginx/nginx.conf"
+    networks:
+      - 'internal'
+      - 'external'
+    healthcheck:
+      interval: '5s'
+      retries: '15'
+      timeout: '2s'
+      test: 
+        - "CMD"
+        - "service" 
+        - "nginx"
+        - "status"
+    ports:
+      - '80:80'
+      - '8080:8080'
+    depends_on:
+      - 'nextcloud-backend'
+
+  nextcloud-database:
+    hostname: 'nextcloud-database'
+    container_name: 'nextcloud-database'
+    image: 'mysql'
+    volumes:
+    - type: "bind"
+      source: "${PWD}/app/database/rootfs/docker-entrypoint-initdb.d"
+      target: "/docker-entrypoint-initdb.d/"
+    networks:
+      - 'internal'
+    healthcheck:
+      interval: '5s'
+      retries: '15'
+      timeout: '10s'
+      test: 
+      - "CMD"
+      - "mysqladmin"
+      - "-uroot"
+      - "-plocal"
+      - "ping"
+      - "-h"
+      - "localhost"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'local'
+
+  nextcloud-backend:
+    hostname: 'nextcloud-backend'
+    container_name: 'nextcloud-backend'
+    image: 'nextcloud:fpm'
+    volumes:
+      - 'nextcloud-www:/var/www/html'
+    networks:
+      - 'internal'
+    depends_on:
+      - 'nextcloud-database'
+    environment:
+      MYSQL_HOST: nextcloud-database 
+      MYSQL_USER: root
+      MYSQL_PASSWORD: local
+      MYSQL_DATABASE: nextcloud
+      TRUSTED_PROXIES: nextcloud-frontend
+      OVERWRITEWEBROOT: nextcloud
+        #      NEXTCLOUD_TRUSTED_DOMAINS: deb10-docker
+
+networks:
+  internal:
+  external:
+
+volumes:
+  nextcloud-www:
+    driver: 'local'
