@@ -46,15 +46,11 @@ function docker() {
 
   IFS=$' ' read -rd '' -a mDockerBranchesRaw <<<"${var}";
 
-  vScriptPath=$(
-    echo ${PWD}/ | sed 's/\//\\\//g'
-  );
-
   declare -A mDockerBranchesParsed; 
 
   for i in ${mDockerBranchesRaw[@]}; do
     vBranchName=$(
-      echo $i | sed "s/${vScriptPath}\(.*\)\/.*$/\1/"
+      echo $i | sed 's/.*\/\(.*\)\/docker.*$/\1/' 
     );
     vBranchPath=$(
       echo $i | rev | sed 's/^[^\/]*\///' | rev

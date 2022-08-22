@@ -38,11 +38,11 @@ endif
 
 .PHONY: docker-base
 docker-base:
-	./help/docker.sh
+	./maketools/docker.sh
 
 .PHONY: docker-compose-prune
 docker-compose-prune: 
-	-@(. ./help/log.sh; log "INFO" "[TARGET: docker-compose-prune]")
+	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-prune]")
 	-@(docker stop $(shell docker ps -aq) &>/dev/null || true)
 	-@(docker system prune -a -f  &>/dev/null)
 	-@(docker rm -f $(shell docker container ls -a -q) &>/dev/null)
@@ -51,18 +51,18 @@ docker-compose-prune:
 
 .PHONY: docker-compose-ps
 docker-compose-ps: 
-	-@(. ./help/log.sh; log "INFO" "[TARGET: docker-compose-ps]")
+	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-ps]")
 	-@(docker-compose ps)
-	-@(. ./help/log.sh; log "SEPARATOR"; )
+	-@(. ./maketools/log.sh; log "SEPARATOR"; )
 
 .PHONY: docker-compose-upd 
 docker-compose-upd: 
-	-@(. ./help/log.sh; log "INFO" "[TARGET: docker-compose-upa]")
+	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-upa]")
 	-@(docker-compose up -d --no-deps --build `echo $(RUN_ARGS) | sed 's/^.* //g'`)
-	-@(. ./help/log.sh; log "SEPARATOR"; )
+	-@(. ./maketools/log.sh; log "SEPARATOR"; )
 
 .PHONY: docker-compose-sh 
 docker-compose-sh: 
-	-@(. ./help/log.sh; log "INFO" "[TARGET: docker-compose-sh]")
+	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-sh]")
 	-@(docker-compose exec `echo $(RUN_ARGS) | sed 's/^.* //g'` /bin/bash)
-	-@(. ./help/log.sh; log "SEPARATOR"; )
+	-@(. ./maketools/log.sh; log "SEPARATOR"; )
