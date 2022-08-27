@@ -10,3 +10,7 @@
 	path = apps/iredmail
   url = https://github.com/igor-sadza/QualityFlag.git
   branch = iredmail
+[submodule "pihole"]
+	path = apps/pihole
+  url = https://github.com/igor-sadza/QualityFlag.git
+  branch = pihole
