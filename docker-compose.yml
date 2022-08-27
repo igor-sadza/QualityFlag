@@ -1,0 +1,49 @@
+version: '3.2'
+
+services:
+
+  pihole-frontend:
+    hostname: 'pihole-frontend'
+    container_name: 'pihole-frontend'
+    build:
+      context: './'
+      dockerfile: '${PWD}/app/frontend/dockerfile'
+    networks:
+      - 'external'
+      - 'internal-pihole'
+    healthcheck:
+      interval: '5s'
+      retries: '15'
+      timeout: '2s'
+      test: 
+        - "CMD"
+        - "service" 
+        - "nginx"
+        - "status"
+    ports:
+      - '443:443'
+    depends_on:
+      - 'pihole-backend'
+
+  pihole-backend:
+    hostname: 'pihole-backend'
+    container_name: 'pihole-backend'
+    image: 'pihole/pihole:latest'
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    #    network_mode: 'host'
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "80:80/tcp"
+    environment:
+      TZ: 'Europe/Warsaw'
+      WEBPASSWORD: 'local'
+    cap_add:
+      - 'NET_ADMIN'
+    networks:
+      - 'internal-pihole'
+
+networks:
+  external:
+  internal-pihole:
