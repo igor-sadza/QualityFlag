@@ -24,6 +24,10 @@ shared:
 git:
 	./maketools/git.sh $(RUN_ARGS)
 
+.PHONY: docker-base
+docker-base:
+	./maketools/docker.sh
+
 .PHONY: docker
 docker: docker-base
 ifeq ($(findstring prune,$(RUN_ARGS)),prune)
@@ -36,17 +40,15 @@ else ifeq ($(findstring sh,$(RUN_ARGS)),sh)
 	-@($(MAKE) -s docker-compose-sh $(RUN_ARGS)) 
 endif
 
-.PHONY: docker-base
-docker-base:
-	./maketools/docker.sh
 
 .PHONY: docker-compose-prune
 docker-compose-prune: 
 	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-prune]")
 	-@(docker stop $(shell docker ps -aq) &>/dev/null || true)
 	-@(docker system prune -a -f  &>/dev/null)
+#	-@(docker rmi $(shell docker images --filter "dangling=true" -q --no-trunc))
 	-@(docker rm -f $(shell docker container ls -a -q) &>/dev/null)
-#	-@(docker image prune -f  &>/dev/null)
+	-@(docker image prune -f  &>/dev/null)
 	-@(docker volume rm $(shell docker volume ls -q) &>/dev/null || true)
 
 .PHONY: docker-compose-ps
@@ -58,7 +60,7 @@ docker-compose-ps:
 .PHONY: docker-compose-upd 
 docker-compose-upd: 
 	-@(. ./maketools/log.sh; log "INFO" "[TARGET: docker-compose-upa]")
-	-@(docker-compose up -d --no-deps --build `echo $(RUN_ARGS) | sed 's/^.* //'`)
+	-@(docker-compose up -d --no-deps --build `echo $(RUN_ARGS) | sed 's/upd//'`)
 	-@(. ./maketools/log.sh; log "SEPARATOR"; )
 
 .PHONY: docker-compose-sh 
