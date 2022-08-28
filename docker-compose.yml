@@ -9,7 +9,7 @@ services:
       context: './'
       dockerfile: '${PWD}/app/frontend/dockerfile'
     volumes:
-      - 'nextcloud-www:/var/www/html'
+      - 'nextcloud:/var/www/nextcloud/'
       - type: "bind"
         source: "${PWD}/app/frontend/rootfs/etc/nginx/nginx.conf"
         target: "/etc/nginx/nginx.conf"
@@ -27,6 +27,8 @@ services:
         - "status"
     ports:
       - '443:443'
+      - '80:80'
+      - '9001:9001'
     depends_on:
       - 'nextcloud-backend'
 
@@ -58,20 +60,21 @@ services:
   nextcloud-backend:
     hostname: 'nextcloud-backend'
     container_name: 'nextcloud-backend'
-    image: 'nextcloud:fpm'
+    build:
+      context: './'
+      dockerfile: '${PWD}/app/backend/dockerfile'
     volumes:
-      - 'nextcloud-www:/var/www/html'
+      - 'nextcloud:/var/www/html/'
     networks:
       - 'internal-nextcloud'
     depends_on:
       - 'nextcloud-database'
     environment:
-      MYSQL_HOST: nextcloud-database 
+      MYSQL_HOST: nextcloud-database
       MYSQL_USER: root
       MYSQL_PASSWORD: local
       MYSQL_DATABASE: nextcloud
       TRUSTED_PROXIES: nextcloud-frontend
-      OVERWRITEWEBROOT: nextcloud
       NEXTCLOUD_TRUSTED_DOMAINS: deb10-docker
 
 networks:
@@ -79,5 +82,5 @@ networks:
   external:
 
 volumes:
-  nextcloud-www:
+  nextcloud:
     driver: 'local'
