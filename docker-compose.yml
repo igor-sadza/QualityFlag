@@ -5,7 +5,7 @@ services:
     container_name: 'nextcloud-web'
     build:
       context: '../'
-      dockerfile: 'misc/nginx/dockerfile'
+      dockerfile: '/nginx/dockerfile'
     volumes:
       - 'rootfs:/var/www/nextcloud/'
       - type: "bind"
