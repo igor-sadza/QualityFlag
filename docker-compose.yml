@@ -6,8 +6,8 @@ services:
     hostname: 'adminer-frontend'
     container_name: 'adminer-frontend'
     build:
-      context: '../'
-      dockerfile: 'misc/nginx/dockerfile'
+      context: './'
+      dockerfile: 'nginx/dockerfile'
     volumes:
       - type: "bind"
         source: "${PWD}/droot/web/vhost.conf"
