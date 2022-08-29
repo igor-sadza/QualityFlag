@@ -1,20 +1,18 @@
 version: '3.5'
-
 services:
-
-  nextcloud-frontend:
-    hostname: 'nextcloud-frontend'
-    container_name: 'nextcloud-frontend'
+  web:
+    hostname: 'nextcloud-web'
+    container_name: 'nextcloud-web'
     build:
-      context: './'
-      dockerfile: '${PWD}/app/frontend/dockerfile'
+      context: '../'
+      dockerfile: '/nginx/dockerfile'
     volumes:
-      - 'nextcloud:/var/www/nextcloud/'
+      - 'rootfs:/var/www/nextcloud/'
       - type: "bind"
-        source: "${PWD}/app/frontend/rootfs/etc/nginx/nginx.conf"
-        target: "/etc/nginx/nginx.conf"
+        source: "${PWD}/droot/web/vhost.conf"
+        target: "/etc/nginx/conf.d/vhost.conf"
     networks:
-      - 'internal-nextcloud'
+      - 'internal'
       - 'external'
     healthcheck:
       interval: '5s'
@@ -27,21 +25,20 @@ services:
         - "status"
     ports:
       - '443:443'
-      - '80:80'
       - '9001:9001'
     depends_on:
-      - 'nextcloud-backend'
+      - 'app'
 
-  nextcloud-database:
-    hostname: 'nextcloud-database'
-    container_name: 'nextcloud-database'
+  db:
+    hostname: 'nextcloud-db'
+    container_name: 'nextcloud-db'
     image: 'mysql'
     volumes:
     - type: "bind"
-      source: "${PWD}/app/database/rootfs/docker-entrypoint-initdb.d"
+      source: "${PWD}/droot/db/docker-entrypoint-initdb.d"
       target: "/docker-entrypoint-initdb.d/"
     networks:
-      - 'internal-nextcloud'
+      - 'internal'
     healthcheck:
       interval: '5s'
       retries: '15'
@@ -57,30 +54,30 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 'local'
 
-  nextcloud-backend:
-    hostname: 'nextcloud-backend'
-    container_name: 'nextcloud-backend'
+  app:
+    hostname: 'nextcloud-app'
+    container_name: 'nextcloud-app'
     build:
       context: './'
-      dockerfile: '${PWD}/app/backend/dockerfile'
+      dockerfile: '${PWD}/droot/app/dockerfile'
     volumes:
-      - 'nextcloud:/var/www/html/'
+      - 'rootfs:/var/www/html/'
     networks:
-      - 'internal-nextcloud'
+      - 'internal'
     depends_on:
-      - 'nextcloud-database'
+      - 'db'
     environment:
-      MYSQL_HOST: nextcloud-database
+      MYSQL_HOST: nextcloud-db
       MYSQL_USER: root
       MYSQL_PASSWORD: local
       MYSQL_DATABASE: nextcloud
-      TRUSTED_PROXIES: nextcloud-frontend
+      TRUSTED_PROXIES: nextcloud-web
       NEXTCLOUD_TRUSTED_DOMAINS: deb10-docker
 
 networks:
-  internal-nextcloud:
+  internal:
   external:
 
 volumes:
-  nextcloud:
+  rootfs:
     driver: 'local'
