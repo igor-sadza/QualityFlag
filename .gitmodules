@@ -15,7 +15,7 @@
   url = https://github.com/igor-sadza/QualityFlag.git
   branch = pihole
 [submodule "nginx"]
-	path = apps/nginx
+	path = apps/misc/nginx
   url = https://github.com/igor-sadza/QualityFlag.git
   branch = nginx
 [submodule "adminer"]
