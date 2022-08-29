@@ -1,20 +1,19 @@
 version: '3.2'
-
 services:
 
-  keycloak-frontend:
-    hostname: 'keycloak-frontend'
-    container_name: 'keycloak-frontend'
+  web:
+    hostname: 'keycloak-web'
+    container_name: 'keycloak-web'
     build:
-      context: './'
-      dockerfile: '${PWD}/app/frontend/dockerfile'
-        #    volumes:
-        #      - type: "bind"
-        #        source: "${PWD}/app/frontend/rootfs/etc/nginx/nginx.conf"
-        #        target: "/etc/nginx/nginx.conf"
+      context: '../'
+      dockerfile: 'nginx/dockerfile'
+    volumes:
+      - type: "bind"
+        source: "${PWD}/droot/web/vhost.conf"
+        target: "/etc/nginx/conf.d/vhost.conf"
     networks:
       - 'external'
-      - 'internal-keycloak'
+      - 'internal'
     healthcheck:
       interval: '5s'
       retries: '15'
@@ -27,51 +26,18 @@ services:
     ports:
       - '443:443'
     depends_on:
-      - 'keycloak-backend'
+      - 'app'
 
-  keycloak-backend:
-    hostname: 'keycloak-backend'
-    container_name: 'keycloak-backend'
-    build:
-      context: './'
-      dockerfile: '${PWD}/app/backend/dockerfile'
-    networks:
-      - 'internal-keycloak'
-    healthcheck:
-      interval: '5s'
-      timeout: '2s'
-      retries: '15'
-      test: 
-        - "CMD"
-        - "curl -f"
-        - "http://localhost:8080/keycloak/"
-    depends_on:
-      - 'keycloak-database'
-    environment:
-      KEYCLOAK_DATASOURCE_URL: 'jdbc:mysql://keycloak-database:3306/keycloak'
-      KC_DB_USERNAME: 'root'
-      KC_DB_PASSWORD: 'local'
-      KC_HOSTNAME_HTTPS_STRICT: 'false'
-      KC_HOSTNAME_STRICT: 'false'
-      KC_LOG_LEVEL: 'info'
-      KC_PROXY: 'edge'
-      KC_HTTP_ENABLED: 'true'
-      KC_HOST_NAME: '/keycloak'
-      KEYCLOAK_ADMIN: 'root' 
-      KEYCLOAK_ADMIN_PASSWORD: 'local'
-      REDIRECT_SOCKET: 'proxy-https'
-      PROXY_ADDRESS_FORWARDING: 'true'
-
-  keycloak-database:
-    hostname: 'keycloak-database'
-    container_name: 'keycloak-database'
+  db:
+    hostname: 'keycloak-db'
+    container_name: 'keycloak-db'
     image: 'mysql'
     volumes:
     - type: "bind"
-      source: "${PWD}/app/database/rootfs/docker-entrypoint-initdb.d"
+      source: "${PWD}/droot/db/docker-entrypoint-initdb.d"
       target: "/docker-entrypoint-initdb.d/"
     networks:
-      - 'internal-keycloak'
+      - 'internal'
     healthcheck:
       interval: '5s'
       retries: '15'
@@ -87,7 +53,40 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 'local'
 
+  app:
+    hostname: 'keycloak-app'
+    container_name: 'keycloak-app'
+    build:
+      context: './'
+      dockerfile: '${PWD}/droot/app/dockerfile'
+    networks:
+      - 'internal'
+    healthcheck:
+      interval: '5s'
+      timeout: '2s'
+      retries: '15'
+      test: 
+        - "CMD"
+        - "curl -f"
+        - "http://localhost:8080/keycloak/"
+    depends_on:
+      - 'db'
+    environment:
+      KEYCLOAK_DATASOURCE_URL: 'jdbc:mysql://keycloak-database:3306/keycloak'
+      KC_DB_USERNAME: 'root'
+      KC_DB_PASSWORD: 'local'
+      KC_HOSTNAME_HTTPS_STRICT: 'false'
+      KC_HOSTNAME_STRICT: 'false'
+      KC_LOG_LEVEL: 'info'
+      KC_PROXY: 'edge'
+      KC_HTTP_ENABLED: 'true'
+      KC_HOST_NAME: '/keycloak'
+      KEYCLOAK_ADMIN: 'root' 
+      KEYCLOAK_ADMIN_PASSWORD: 'local'
+      REDIRECT_SOCKET: 'proxy-https'
+      PROXY_ADDRESS_FORWARDING: 'true'
+
 networks:
+  internal:
   external:
-  internal-keycloak:
 
