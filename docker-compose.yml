@@ -7,7 +7,7 @@ services:
     container_name: 'pihole-web'
     build:
       context: '../'
-      dockerfile: 'nginx/dockerfile'
+      dockerfile: 'misc/nginx/dockerfile'
     volumes:
       - type: "bind"
         source: "${PWD}/droot/web/vhost.conf"
