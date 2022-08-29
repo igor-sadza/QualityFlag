@@ -14,3 +14,7 @@
 	path = apps/pihole
   url = https://github.com/igor-sadza/QualityFlag.git
   branch = pihole
+[submodule "nginx"]
+	path = apps/nginx
+  url = https://github.com/igor-sadza/QualityFlag.git
+  branch = nginx

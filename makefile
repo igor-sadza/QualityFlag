@@ -48,7 +48,7 @@ docker-compose-prune:
 	-@(docker system prune -a -f  &>/dev/null)
 #	-@(docker rmi $(shell docker images --filter "dangling=true" -q --no-trunc))
 	-@(docker rm -f $(shell docker container ls -a -q) &>/dev/null)
-	-@(docker image prune -f  &>/dev/null)
+#	-@(docker image prune -f  &>/dev/null)
 	-@(docker volume rm $(shell docker volume ls -q) &>/dev/null || true)
 
 .PHONY: docker-compose-ps
