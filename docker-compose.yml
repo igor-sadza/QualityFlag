@@ -2,15 +2,19 @@ version: '3.2'
 
 services:
 
-  pihole-frontend:
+  web:
     hostname: 'pihole-frontend'
     container_name: 'pihole-frontend'
     build:
-      context: './'
-      dockerfile: '${PWD}/app/frontend/dockerfile'
+      context: '../'
+      dockerfile: 'nginx/dockerfile'
+    volumes:
+      - type: "bind"
+        source: "${PWD}/droot/web/vhost.conf"
+        target: "/etc/nginx/conf.d/vhost.conf"
     networks:
       - 'external'
-      - 'internal-pihole'
+      - 'internal'
     healthcheck:
       interval: '5s'
       retries: '15'
@@ -23,11 +27,11 @@ services:
     ports:
       - '443:443'
     depends_on:
-      - 'pihole-backend'
+      - 'app'
 
-  pihole-backend:
-    hostname: 'pihole-backend'
-    container_name: 'pihole-backend'
+  app:
+    hostname: 'pihole-app'
+    container_name: 'pihole-app'
     image: 'pihole/pihole:latest'
     # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
     #    network_mode: 'host'
@@ -42,8 +46,8 @@ services:
     cap_add:
       - 'NET_ADMIN'
     networks:
-      - 'internal-pihole'
+      - 'internal'
 
 networks:
   external:
-  internal-pihole:
+  internal:
