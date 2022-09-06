@@ -22,3 +22,7 @@
 	path = apps/adminer
   url = https://github.com/igor-sadza/QualityFlag.git
   branch = adminer
+[submodule "haproxy"]
+	path = apps/haproxy
+  url = https://github.com/igor-sadza/QualityFlag.git
+  branch = haproxy
